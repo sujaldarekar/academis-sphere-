@@ -233,6 +233,15 @@ Set these values in Render before first successful deploy:
 - Backend CORS reads `CORS_ORIGINS` and `FRONTEND_URL`.
 - SPA routes are handled by Render rewrite rules and `frontend/public/_redirects`.
 
+### Free Tier Notes (Render)
+
+- Backend is configured as `plan: free` in `render.yaml`.
+- Frontend static site is deployable on Render free static hosting.
+- To keep the project fully free, use free plans for external dependencies too:
+   - MongoDB Atlas free cluster
+   - Cloudinary free tier
+- Free backend instances may sleep when idle and can take longer on first request.
+
 ## 🔐 Test Credentials
 
 ```
