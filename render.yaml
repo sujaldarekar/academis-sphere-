@@ -21,15 +21,9 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: false
       - key: FRONTEND_URL
-        fromService:
-          type: web
-          name: academia-sphere-frontend
-          property: url
+        sync: false
       - key: CORS_ORIGINS
-        fromService:
-          type: web
-          name: academia-sphere-frontend
-          property: url
+        sync: false
 
   - type: web
     name: academia-sphere-frontend
@@ -43,7 +37,4 @@ services:
         destination: /index.html
     envVars:
       - key: REACT_APP_BACKEND_URL
-        fromService:
-          type: web
-          name: academia-sphere-backend
-          property: url
+        sync: false

@@ -220,10 +220,16 @@ Set these values in Render before first successful deploy:
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
+- `FRONTEND_URL` (set to your Render frontend URL, e.g. `https://academia-sphere-frontend.onrender.com`)
+- `CORS_ORIGINS` (use the same frontend URL)
+
+### Required frontend env in Render
+
+- `REACT_APP_BACKEND_URL` (set to your Render backend URL, e.g. `https://academia-sphere-backend.onrender.com`)
 
 ### Production env behavior
 
-- Frontend uses `REACT_APP_BACKEND_URL` (injected from backend service URL in `render.yaml`).
+- Frontend uses `REACT_APP_BACKEND_URL` to build API and socket URLs.
 - Backend CORS reads `CORS_ORIGINS` and `FRONTEND_URL`.
 - SPA routes are handled by Render rewrite rules and `frontend/public/_redirects`.
 
