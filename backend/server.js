@@ -61,15 +61,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/student-hod-system')
-  .then(() => {
-    console.log('MongoDB connected');
-  })
-  .catch((err) => {
-    console.log('MongoDB connection error:', err);
-  });
+// Make io accessible to routes if needed.
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -122,17 +118,45 @@ app.use(errorHandler);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK' });
+  const dbStateMap = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting',
+  };
+  const dbState = dbStateMap[mongoose.connection.readyState] || 'unknown';
+  const healthy = dbState === 'connected';
+
+  res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'OK' : 'DEGRADED',
+    database: dbState,
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  const mongoUri = process.env.MONGO_URI;
 
-// Make io accessible to routes if needed
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+  if (!mongoUri) {
+    console.error('MONGO_URI is not set. Refusing to start server.');
+    process.exit(1);
+  }
+
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    });
+    console.log('MongoDB connected');
+
+    server.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message || err);
+    process.exit(1);
+  }
+};
+
+startServer();
