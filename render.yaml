@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: academia-sphere-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: academia-sphere-frontend
+          property: url
+      - key: CORS_ORIGINS
+        fromService:
+          type: web
+          name: academia-sphere-frontend
+          property: url
+
+  - type: web
+    name: academia-sphere-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install; npm run build
+    staticPublishPath: build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: REACT_APP_BACKEND_URL
+        fromService:
+          type: web
+          name: academia-sphere-backend
+          property: url
